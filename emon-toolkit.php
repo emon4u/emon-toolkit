@@ -1,82 +1,105 @@
 <?php
-
 /**
- * The plugin bootstrap file
- *
- * This file is read by WordPress to generate the plugin information in the plugin
- * admin area. This file also includes all of the dependencies used by the plugin,
- * registers the activation and deactivation functions, and defines a function
- * that starts the plugin.
- *
- * @link              https://github.com/emon4u/
- * @since             1.0.0
- * @package           Emon_Toolkit
- *
- * @wordpress-plugin
  * Plugin Name:       Emon Toolkit
  * Plugin URI:        https://github.com/emon4u/emon-toolkit
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
- * Version:           1.0.0
+ * Description:       A toolkit plugin for WordPress plugin development
+ * Version:           1.0
  * Author:            Emon Ahmed
  * Author URI:        https://github.com/emon4u/
- * License:           GPL-2.0+
+ * License:           GPLv2
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       emon-toolkit
- * Domain Path:       /languages
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
-	die;
+if ( !defined( 'ABSPATH' ) ) {
+    die;
+}
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+/**
+ * The main plugin class
+ */
+final class Emon_Toolkit {
+
+    /**
+     * Plugin version
+     *
+     * @var string
+     */
+    const version = '1.0';
+
+    /**
+     * Class constructor
+     */
+    private function __construct() {
+
+        $this->define_constants();
+
+        register_activation_hook( __FILE__, [$this, 'activate'] );
+
+        add_action( 'plugins_loaded', [$this, 'init_plugin'] );
+    }
+
+    /**
+     * Initializes a singleton instance
+     *
+     * @return \Emon_Toolkit
+     */
+    public static function init() {
+        static $instance = false;
+
+        if ( !$instance ) {
+            $instance = new self();
+        }
+
+        return $instance;
+    }
+
+    /**
+     * Define the required plugin constants
+     *
+     * @return void
+     */
+    public function define_constants() {
+        define( 'ET_VERSION', self::version );
+        define( 'ET_FILE', __FILE__ );
+        define( 'ET_PATH', __DIR__ );
+        define( 'ET_URL', plugins_url( '', ET_FILE ) );
+        define( 'ET_ASSETS', ET_URL . '/assets' );
+    }
+
+    /**
+     * Initialize the plugin
+     *
+     * @return void
+     */
+    public function init_plugin() {
+        if ( is_admin() ) {
+            new EmonToolkit\Admin();
+        }
+    }
+
+    /**
+     * Do stuff upon plugin activation
+     *
+     * @return void
+     */
+    public function activate() {
+        $installer = new EmonToolkit\Installer();
+        $installer->run();
+    }
 }
 
 /**
- * Currently plugin version.
- * Start at version 1.0.0 and use SemVer - https://semver.org
- * Rename this for your plugin and update it as you release new versions.
- */
-define( 'EMON_TOOLKIT_VERSION', '1.0.0' );
-
-/**
- * The code that runs during plugin activation.
- * This action is documented in includes/class-emon-toolkit-activator.php
- */
-function activate_emon_toolkit() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-emon-toolkit-activator.php';
-	Emon_Toolkit_Activator::activate();
-}
-
-/**
- * The code that runs during plugin deactivation.
- * This action is documented in includes/class-emon-toolkit-deactivator.php
- */
-function deactivate_emon_toolkit() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-emon-toolkit-deactivator.php';
-	Emon_Toolkit_Deactivator::deactivate();
-}
-
-register_activation_hook( __FILE__, 'activate_emon_toolkit' );
-register_deactivation_hook( __FILE__, 'deactivate_emon_toolkit' );
-
-/**
- * The core plugin class that is used to define internationalization,
- * admin-specific hooks, and public-facing site hooks.
- */
-require plugin_dir_path( __FILE__ ) . 'includes/class-emon-toolkit.php';
-
-/**
- * Begins execution of the plugin.
+ * Initializes the main plugin
  *
- * Since everything within the plugin is registered via hooks,
- * then kicking off the plugin from this point in the file does
- * not affect the page life cycle.
- *
- * @since    1.0.0
+ * @return \Emon_Toolkit
  */
-function run_emon_toolkit() {
-
-	$plugin = new Emon_Toolkit();
-	$plugin->run();
-
+function emon_toolkit() {
+    return Emon_Toolkit::init();
 }
-run_emon_toolkit();
+
+// kick-off the plugin
+emon_toolkit();

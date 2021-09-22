@@ -1,0 +1,20 @@
+{
+    "name": "emon4u/emon-toolkit",
+    "description": "A toolkit plugin for WordPress plugin development",
+    "type": "wordpress-plugin",
+    "license": "GPLv2",
+    "autoload": {
+        "psr-4": {
+            "EmonToolkit\\": "includes/"
+        },
+        "files": ["includes/functions.php"]
+    },
+    "authors": [
+        {
+            "name": "Emon Ahmed",
+            "email": "emon82240@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
